@@ -38,13 +38,22 @@ class CgmInterator(object):
 
   def __get_twilio_credentials(self):
     """
-    Get the Twilio access credentials - try the hardcoded values first,
-    then attempt to get them from the TWILIO_ACCOUNT_SID and
-    TWILIO_AUTH_TOKEN environment variables.
+    Get the Twilio access credentials - try the TWILIO_ACCOUNT_SID and
+    TWILIO_AUTH_TOKEN environment variables, and if missing default
+    to the constants with the same names.
     :return (str, str): Twilio account SID and auth token
     """
-    return os.getenv('TWILIO_ACCOUNT_SID', self.__TWILIO_ACCOUNT_SID), \
-      os.getenv('TWILIO_AUTH_TOKEN', self.__TWILIO_AUTH_TOKEN)
+    return os.getenv("TWILIO_ACCOUNT_SID", self.__TWILIO_ACCOUNT_SID), \
+      os.getenv("TWILIO_AUTH_TOKEN", self.__TWILIO_AUTH_TOKEN)
+
+  def __get_twilio_phone_number(self):
+    """
+    Get the Twilio send-from phone number: try the TWILIO_PHONE_NUMBER
+    environment variable, and if missing, default to the __TWILIO_PHONE_NUMBER
+    constant.
+    :return str: The phone number to send from
+    """
+    return os.getenv("TWILIO_PHONE_NUMBER", self.__TWILIO_PHONE_NUMBER)
 
   def __build_headers(self):
     return {
@@ -96,7 +105,7 @@ class CgmInterator(object):
     client = Client(*self.__get_twilio_credentials())
     message = client.messages.create(
         body=message_text,
-        from_=self.__TWILIO_PHONE_NUMBER,
+        from_=self.__get_twilio_phone_number(),
         to=phone_number
     )
     return message.sid
@@ -117,4 +126,4 @@ if __name__ == "__main__":
   api = CgmInterator(line, stop)
   api.get_next_arrivals()
   print(api)
-  print(api.send_sms(phone, True))
+  print(api.send_sms(phone))
