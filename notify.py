@@ -3,7 +3,9 @@
 Get bus arrival times and SMS them to me.
 """
 
+import os
 import json
+import sys
 from datetime import datetime
 import requests
 from twilio.rest import Client
@@ -34,6 +36,16 @@ class CgmInterator(object):
     self.last_timestamp = None
     self.arrival_times = []
 
+  def __get_twilio_credentials(self):
+    """
+    Get the Twilio access credentials - try the hardcoded values first,
+    then attempt to get them from the TWILIO_ACCOUNT_SID and
+    TWILIO_AUTH_TOKEN environment variables.
+    :return (str, str): Twilio account SID and auth token
+    """
+    return os.getenv('TWILIO_ACCOUNT_SID', self.__TWILIO_ACCOUNT_SID), \
+      os.getenv('TWILIO_AUTH_TOKEN', self.__TWILIO_AUTH_TOKEN)
+
   def __build_headers(self):
     return {
     "Accept": "application/json, text/plain, */*",
@@ -63,7 +75,8 @@ class CgmInterator(object):
       self.arrival_times = [t["time"] for t in response["lines"][0]["arrivals"]]
 
   def get_arrivals(self, cutoff=5):
-    arrivals = self.arrival_times if len(self.arrival_times) <= cutoff else self.arrival_times[0:cutoff]
+    arrivals = self.arrival_times if len(
+      self.arrival_times) <= cutoff else self.arrival_times[0:cutoff]
     return arrivals
 
   def __repr__(self):
@@ -80,7 +93,7 @@ class CgmInterator(object):
     message_text = self.__repr__()
     if not send or len(message_text) > 160 or not len(self.arrival_times):
       return None
-    client = Client(self.__TWILIO_ACCOUNT_SID, self.__TWILIO_AUTH_TOKEN)
+    client = Client(*self.__get_twilio_credentials())
     message = client.messages.create(
         body=message_text,
         from_=self.__TWILIO_PHONE_NUMBER,
@@ -89,7 +102,19 @@ class CgmInterator(object):
     return message.sid
 
 if __name__ == "__main__":
-  api = CgmInterator(304, 2688)
+  if len(sys.argv) != 4:
+    print("Usage: notify.py <line number> <stop number> <phone number>")
+    exit(1)
+
+  line, stop, phone = sys.argv[:1]
+  try:
+    line = int(line)
+    stop = int(stop)
+  except ValueError:
+    print("Line and stop numbers must in fact be numbers.")
+    exit(1)
+
+  api = CgmInterator(line, stop)
   api.get_next_arrivals()
   print(api)
-  print(api.send_sms(""))
+  print(api.send_sms(phone))
