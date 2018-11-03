@@ -55,7 +55,11 @@ class CgmInterator(object):
     self.stop_name = response["name"]
     self.last_timestamp = datetime.strptime(
       response["timestamp_calculated"], self.__TIME_PATTERN)
-    self.arrival_times = [t["time"] for t in response["lines"][0]["arrivals"]]
+
+    if not response["lines"]:
+      self.arrival_times = []
+    else:
+      self.arrival_times = [t["time"] for t in response["lines"][0]["arrivals"]]
 
   def get_arrivals(self, cutoff=5):
     arrivals = self.arrival_times if len(self.arrival_times) <= cutoff else self.arrival_times[0:cutoff]
@@ -73,7 +77,7 @@ class CgmInterator(object):
     :param send bool: Whether to atually send the message
     """
     message_text = self.__repr__()
-    if not send or len(message_text) > 160:
+    if not send or len(message_text) > 160 or not len(self.arrival_times):
       return None
     client = Client(self.__TWILIO_ACCOUNT_SID, self.__TWILIO_AUTH_TOKEN)
     message = client.messages.create(
