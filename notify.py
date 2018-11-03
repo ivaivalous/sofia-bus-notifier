@@ -106,7 +106,7 @@ if __name__ == "__main__":
     print("Usage: notify.py <line number> <stop number> <phone number>")
     exit(1)
 
-  line, stop, phone = sys.argv[:1]
+  line, stop, phone = sys.argv[:0]
   try:
     line = int(line)
     stop = int(stop)
