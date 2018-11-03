@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Get bus arrival times and SMS them to me.
 """
