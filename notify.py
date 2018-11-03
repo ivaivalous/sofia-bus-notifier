@@ -126,4 +126,4 @@ if __name__ == "__main__":
   api = CgmInterator(line, stop)
   api.get_next_arrivals()
   print(api)
-  print(api.send_sms(phone))
+  print(api.send_sms(phone, True))
