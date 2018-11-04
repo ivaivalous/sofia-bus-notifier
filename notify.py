@@ -6,7 +6,7 @@ Get bus arrival times and SMS them to me.
 import os
 import json
 import sys
-from datetime import datetime, time
+from datetime import datetime
 import requests
 from twilio.rest import Client
 
@@ -33,7 +33,7 @@ class CgmInterator(object):
     self.line_number = line_number
     self.stop_number = stop_number
     self.stop_name = ""
-    self.last_timestamp = datetime.time(0, 0)
+    self.last_timestamp = None
     self.arrival_times = []
 
   def __get_twilio_credentials(self):
@@ -91,6 +91,8 @@ class CgmInterator(object):
     return arrivals
 
   def __repr__(self):
+    if not self.last_timestamp:
+      return "Arrivals for bus {} @ {}.".format(self.line_number, self.stop_number)
     return "Arrivals for bus {} @ {}: {}. Collected {}.".format(
       self.line_number, self.stop_number,
       ", ".join(str(t) for t in self.get_arrivals(5)), self.last_timestamp.time())
