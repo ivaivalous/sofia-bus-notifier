@@ -74,6 +74,8 @@ class CgmInterator(object):
       headers=self.__build_headers())
 
     response = json.loads(response.text)
+    if not response:  # The response would be empty at times when the line is not running
+      return
     self.stop_name = response["name"]
     self.last_timestamp = datetime.strptime(
       response["timestamp_calculated"], self.__TIME_PATTERN)
