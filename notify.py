@@ -89,13 +89,18 @@ class CgmInterator(object):
     arrivals = self.arrival_times if len(
       self.arrival_times) <= cutoff else self.arrival_times[0:cutoff]
     return arrivals
+  
+  @staticmethod
+  def __remove_seconds(arrivals):
+    return [arrival.split(":")[:1] for arrival in arrivals]
 
   def __repr__(self):
     if not self.last_timestamp:
       return "Arrivals for bus {} @ {}.".format(self.line_number, self.stop_number)
+    arrivals = self.__remove_seconds(self.get_arrivals(5))
     return "Arrivals for bus {} @ {}: {}. Collected {}.".format(
       self.line_number, self.stop_number,
-      ", ".join(str(t) for t in self.get_arrivals(5)), self.last_timestamp.time())
+      ", ".join(str(t) for t in arrivals, self.last_timestamp.time())
 
   def send_sms(self, phone_number, send=False):
     """
