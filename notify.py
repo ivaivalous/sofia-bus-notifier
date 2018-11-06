@@ -92,7 +92,7 @@ class CgmInterator(object):
   
   @staticmethod
   def __remove_seconds(arrivals):
-    return [arrival.split(":")[:1] for arrival in arrivals]
+    return [":".join(arrival.split(":")[:2]) for arrival in arrivals]
 
   def __repr__(self):
     if not self.last_timestamp:
