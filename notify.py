@@ -100,7 +100,7 @@ class CgmInterator(object):
     arrivals = self.__remove_seconds(self.get_arrivals(5))
     return "Arrivals for bus {} @ {}: {}. Collected {}.".format(
       self.line_number, self.stop_number,
-      ", ".join(str(t) for t in arrivals, self.last_timestamp.time())
+      ", ".join(str(t) for t in arrivals), self.last_timestamp.time())
 
   def send_sms(self, phone_number, send=False):
     """
